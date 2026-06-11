@@ -169,7 +169,9 @@ def get_safe_subprocess_env() -> Dict[str, str]:
         Dictionary containing only required environment variables
     """
     safe_env_vars = {
-        # Anthropic Configuration (required)
+        # Anthropic Configuration (optional)
+        # ANTHROPIC_API_KEY is optional - if not set, Claude Code uses the
+        # logged-in Claude application (subscription auth) instead of API billing.
         "ANTHROPIC_API_KEY": os.getenv("ANTHROPIC_API_KEY"),
         
         # GitHub Configuration (optional)

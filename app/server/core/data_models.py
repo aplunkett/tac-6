@@ -28,6 +28,10 @@ class QueryResponse(BaseModel):
     execution_time_ms: float
     error: Optional[str] = None
 
+# Export Models
+class ExportQueryRequest(BaseModel):
+    sql: str = Field(..., description="Validated SQL query (already returned from /api/query) to export as CSV")
+
 # Database Schema Models
 class ColumnInfo(BaseModel):
     name: str

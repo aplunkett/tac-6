@@ -83,6 +83,7 @@ bun run dev
    - Press `Cmd+Enter` (Mac) or `Ctrl+Enter` (Windows/Linux) to run the query
 3. **View Results**: See the generated SQL and results in a table format
 4. **Manage Tables**: Click the × button on any table to remove it
+5. **Export to CSV**: Click the download icon to the left of a table's × button to download the full table, or the download icon to the left of the "Hide" button in the Query Results header to download the current results — both download as CSV files
 
 ## Development
 
@@ -127,6 +128,8 @@ bun run preview            # Preview production build
 - `GET /api/schema` - Get database schema
 - `POST /api/insights` - Generate column insights
 - `GET /api/health` - Health check
+- `GET /api/export/table/{table_name}` - Export a table as CSV
+- `POST /api/export/query` - Export query results as CSV
 
 ## Security
 
