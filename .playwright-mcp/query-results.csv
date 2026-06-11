@@ -1,0 +1,21 @@
+id,name,email,signup_date,age,city
+1,John Doe,john@example.com,2025-10-15,28,New York
+2,Jane Smith,jane@example.com,2025-10-20,32,Los Angeles
+3,Bob Johnson,bob@example.com,2025-11-01,45,Chicago
+4,Alice Brown,alice@example.com,2025-11-10,27,Houston
+5,Charlie Wilson,charlie@example.com,2025-11-15,35,Phoenix
+6,Diana Martinez,diana@example.com,2025-11-20,29,Philadelphia
+7,Ethan Davis,ethan@example.com,2025-11-25,38,San Antonio
+8,Fiona Garcia,fiona@example.com,2025-12-01,41,San Diego
+9,George Rodriguez,george@example.com,2025-12-05,33,Dallas
+10,Hannah Lee,hannah@example.com,2025-12-10,26,San Jose
+11,Isaac Walker,isaac@example.com,2025-12-15,42,Austin
+12,Julia White,julia@example.com,2025-12-20,31,Jacksonville
+13,Kevin Thompson,kevin@example.com,2025-12-25,37,Fort Worth
+14,Laura Anderson,laura@example.com,2026-01-01,30,Columbus
+15,Michael Chen,michael@example.com,2026-01-05,34,Charlotte
+16,Nina Patel,nina@example.com,2026-01-10,28,San Francisco
+17,Oliver Kim,oliver@example.com,2026-01-15,36,Indianapolis
+18,Patricia Lopez,patricia@example.com,2026-01-20,39,Seattle
+19,Quinn Turner,quinn@example.com,2026-01-25,25,Denver
+20,Rachel Green,rachel@example.com,2026-02-01,32,Washington

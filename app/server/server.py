@@ -1,9 +1,11 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from datetime import datetime
 import os
 import sqlite3
 import traceback
+import pandas as pd
 from dotenv import load_dotenv
 import logging
 import sys
@@ -18,7 +20,8 @@ from core.data_models import (
     HealthCheckResponse,
     TableSchema,
     ColumnInfo,
-    RandomQueryResponse
+    RandomQueryResponse,
+    ExportQueryRequest
 )
 from core.file_processor import convert_csv_to_sqlite, convert_json_to_sqlite, convert_jsonl_to_sqlite
 from core.llm_processor import generate_sql, generate_random_query
@@ -303,6 +306,77 @@ async def delete_table(table_name: str):
         logger.error(f"[ERROR] Table deletion failed: {str(e)}")
         logger.error(f"[ERROR] Full traceback:\n{traceback.format_exc()}")
         raise HTTPException(500, f"Error deleting table: {str(e)}")
+
+@app.get("/api/export/table/{table_name}")
+async def export_table_csv(table_name: str):
+    """Export an entire table as a downloadable CSV file"""
+    try:
+        # Validate table name using security module
+        try:
+            validate_identifier(table_name, "table")
+        except SQLSecurityError as e:
+            raise HTTPException(400, str(e))
+
+        conn = sqlite3.connect("db/database.db")
+
+        # Check if table exists using secure method
+        if not check_table_exists(conn, table_name):
+            conn.close()
+            raise HTTPException(404, f"Table '{table_name}' not found")
+
+        # Read all rows safely using escaped identifier
+        cursor = execute_query_safely(
+            conn,
+            "SELECT * FROM {table}",
+            identifier_params={'table': table_name}
+        )
+        columns = [description[0] for description in cursor.description]
+        rows = cursor.fetchall()
+        conn.close()
+
+        # Build CSV using pandas (handles quoting/escaping)
+        df = pd.DataFrame(rows, columns=columns)
+        csv_text = df.to_csv(index=False)
+
+        logger.info(f"[SUCCESS] Table exported: {table_name}, rows={len(rows)}")
+        return StreamingResponse(
+            iter([csv_text]),
+            media_type="text/csv",
+            headers={"Content-Disposition": f'attachment; filename="{table_name}.csv"'}
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"[ERROR] Table export failed: {str(e)}")
+        logger.error(f"[ERROR] Full traceback:\n{traceback.format_exc()}")
+        raise HTTPException(500, f"Error exporting table: {str(e)}")
+
+@app.post("/api/export/query")
+async def export_query_csv(request: ExportQueryRequest):
+    """Export the results of a SQL query as a downloadable CSV file"""
+    try:
+        # Execute via the existing safe path (validates the query internally)
+        result = execute_sql_safely(request.sql)
+
+        if result['error']:
+            raise HTTPException(400, result['error'])
+
+        # Build CSV using pandas, preserving column order even when empty
+        df = pd.DataFrame(result['results'], columns=result['columns'])
+        csv_text = df.to_csv(index=False)
+
+        logger.info(f"[SUCCESS] Query exported: rows={len(result['results'])}")
+        return StreamingResponse(
+            iter([csv_text]),
+            media_type="text/csv",
+            headers={"Content-Disposition": 'attachment; filename="query_results.csv"'}
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"[ERROR] Query export failed: {str(e)}")
+        logger.error(f"[ERROR] Full traceback:\n{traceback.format_exc()}")
+        raise HTTPException(500, f"Error exporting query results: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
